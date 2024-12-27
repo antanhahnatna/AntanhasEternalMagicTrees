@@ -486,25 +486,25 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
             case "perfect" -> aux = "Perfect juju woodcutting";
         }
         if(Bank.contains(aux + " flask (6)")) {
-            Bank.withdraw(aux + " flask (6)", 1);
+            Bank.withdraw(aux + " flask (6)", 2);
         } else if(Bank.contains(aux + " flask (5)")) {
-            Bank.withdraw(aux + " flask (5)", 1);
+            Bank.withdraw(aux + " flask (5)", 2);
         } else if(Bank.contains(aux + " potion (4)")) {
-            Bank.withdraw(aux + " potion (4)", 1);
+            Bank.withdraw(aux + " potion (4)", 2);
         } else if(Bank.contains(aux + " flask (4)")) {
-            Bank.withdraw(aux + " flask (4)", 1);
+            Bank.withdraw(aux + " flask (4)", 2);
         } else if(Bank.contains(aux + " potion (3)")) {
-            Bank.withdraw(aux + " potion (3)", 1);
+            Bank.withdraw(aux + " potion (3)", 2);
         } else if(Bank.contains(aux + " flask (3)")) {
-            Bank.withdraw(aux + " flask (3)", 1);
+            Bank.withdraw(aux + " flask (3)", 2);
         } else if(Bank.contains(aux + " potion (2)")) {
-            Bank.withdraw(aux + " potion (2)", 1);
+            Bank.withdraw(aux + " potion (2)", 2);
         } else if(Bank.contains(aux + " flask (2)")) {
-            Bank.withdraw(aux + " flask (2)", 1);
+            Bank.withdraw(aux + " flask (2)", 2);
         } else if(Bank.contains(aux + " potion (1)")) {
-            Bank.withdraw(aux + " potion (1)", 1);
+            Bank.withdraw(aux + " potion (1)", 2);
         } else if(Bank.contains(aux + " flask (1)")) {
-            Bank.withdraw(aux + " flask (1)", 1);
+            Bank.withdraw(aux + " flask (1)", 2);
         }
     }
 
