@@ -294,7 +294,7 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
             }
         }
         //check grounditems for a bird's nest
-        GroundItem birdsNest = GroundItemQuery.newQuery().name(Pattern.compile("ird's nest")).results().nearest();
+        GroundItem birdsNest = GroundItemQuery.newQuery().name(Pattern.compile("ird's")).results().nearest();
         if(birdsNest != null) {
             birdsNest.interact(GroundItemAction.GROUND_ITEM3);
             //we have to rely on pickedUpBirdsNest set by a subscription in order to know when we picked up the bird's nest
