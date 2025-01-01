@@ -44,6 +44,7 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
     private Boolean pickedUpBirdsNest = false;
     private Boolean hasNormalJujuPotion = false;
     private Boolean hasPerfectJujuPotion = false;
+    private Pattern birdsNestPattern = Pattern.compile("ird's");
     LinkedList<String> logNames = new LinkedList<>();
     LinkedList<Integer> logAmounts = new LinkedList<>();
     int startingExperience = Skills.WOODCUTTING.getSkill().getExperience();
@@ -294,7 +295,7 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
             }
         }
         //check grounditems for a bird's nest
-        GroundItem birdsNest = GroundItemQuery.newQuery().name(Pattern.compile("ird's")).results().nearest();
+        GroundItem birdsNest = GroundItemQuery.newQuery().name(birdsNestPattern).results().nearest();
         if(birdsNest != null) {
             birdsNest.interact(GroundItemAction.GROUND_ITEM3);
             //we have to rely on pickedUpBirdsNest set by a subscription in order to know when we picked up the bird's nest
