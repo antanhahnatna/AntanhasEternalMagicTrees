@@ -187,6 +187,7 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
                 //if(Achievement.byId(1747).isCompleted()) {
                 //the function above bafflingly crashes the entire game for id values >= 1620, so I have to use another way to check if the player has War's Retreat teleport unlocked
                 if(VarManager.getVarbitValue(45680) == 1) {
+                    /*
                     Component warsRetreat = ComponentQuery.newQuery(1461).componentIndex(1).subComponentIndex(205).results().first();
                     if (warsRetreat != null) {
                         warsRetreat.interact(warsRetreat.getOptions().get(0));
@@ -195,6 +196,9 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
                             return player.getCoordinate().equals(new Coordinate(3294, 10127, 0)) && SceneObjectQuery.newQuery().name("Bank chest").option("Use").results().nearest() != null;
                         });
                     }
+                    */
+                    //sometimes the script would get stuck on the teleport tile of War's Retreat and I don't know why, so I replaced that bit with a handleMoving
+                    handleMoving(new Coordinate(3297, 10129, 0), player);
                 //if War's Retreat teleport isn't unlocked, try using Ring of Fortune or Luck of the Dwarves to teleport to GE in order to bank
                 //the next two lines are clumsy put together, but such is the limited API we have
                 } else if(InventoryItemQuery.newQuery(94).option("Grand Exchange").results().first() != null) {
@@ -307,7 +311,7 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
         //if there's a lumberjack's intuition spot, move there
         SpotAnimation lumberjacksIntuition = SpotAnimationQuery.newQuery().ids(8447).results().nearest();
         if(lumberjacksIntuition != null && !lumberjacksIntuition.getCoordinate().equals(player.getCoordinate())) {
-            Execution.delay(random.nextLong(3000,5000));
+            Execution.delay(random.nextLong(1500,3000));
             Movement.walkTo(lumberjacksIntuition.getCoordinate().getX(), lumberjacksIntuition.getCoordinate().getY(), false);
             Execution.delayUntil(20000, () -> {
                 return lumberjacksIntuition.getCoordinate().equals(player.getCoordinate());
