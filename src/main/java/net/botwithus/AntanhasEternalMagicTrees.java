@@ -3,6 +3,7 @@ package net.botwithus;
 import net.botwithus.api.game.hud.inventories.Bank;
 import net.botwithus.internal.scripts.ScriptDefinition;
 import net.botwithus.rs3.events.impl.InventoryUpdateEvent;
+import net.botwithus.rs3.events.impl.SkillUpdateEvent;
 import net.botwithus.rs3.game.Area;
 import net.botwithus.rs3.game.Client;
 import net.botwithus.rs3.game.Coordinate;
@@ -47,7 +48,7 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
     private Pattern birdsNestPattern = Pattern.compile("ird's");
     LinkedList<String> logNames = new LinkedList<>();
     LinkedList<Integer> logAmounts = new LinkedList<>();
-    int startingExperience = Skills.WOODCUTTING.getSkill().getExperience();
+    int experienceGained = 0;
     long startingTime = System.currentTimeMillis();
     long timeScriptWasLastActive = System.currentTimeMillis();
 
@@ -104,6 +105,13 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
                         logAmounts.push(increment);
                     }
                 }
+            }
+        });
+
+        //subscription to keep track of xp gained
+        subscribe(SkillUpdateEvent.class, skillUpdateEvent -> {
+            if(Skills.byId(skillUpdateEvent.getId()) == Skills.WOODCUTTING && botState != BotState.STOPPED) {
+                experienceGained += skillUpdateEvent.getExperience() - skillUpdateEvent.getOldExperience();
             }
         });
 
@@ -225,6 +233,25 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
         if(Backpack.contains("Decorated woodcutting urn (full)")) {
             Backpack.interact("Decorated woodcutting urn (full)", "Teleport urn");
         }
+        //drop empty juju vials
+        while(Backpack.contains("Juju vial")) {
+            Backpack.interact("Juju vial", "Drop");
+            Execution.delay(random.nextLong(500, 800));
+        }
+        //the break condition while woodcutting is if we get our backpack full. notice that this condition works here because handleWoodcutting() doesn't clog up onLoop, so this function will be called up often
+        if (Backpack.isFull()) {
+            Execution.delay(random.nextLong(500,1500));
+            //First try filling the wood box
+            if (Backpack.contains("Eternal magic wood box")) {
+                Backpack.interact("Eternal magic wood box", "Fill");
+                Execution.delay(random.nextLong(1500,3000));
+            }
+            //if inventory is still full after filling the wood box, go to bank
+            if (Backpack.isFull()) {
+                if (botState != BotState.STOPPED) botState = BotState.MOVINGTOBANK;
+                return random.nextLong(1500, 3000);
+            }
+        }
         //this section handles normal juju potion-drinking
         if(
                 //did we have normal juju potion in inv when script was started?
@@ -278,25 +305,6 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
             Execution.delayUntil(20000, () -> {
                 return ComponentQuery.newQuery(284).spriteId(32757).results().first() != null;
             });
-        }
-        //drop empty juju vials
-        while(Backpack.contains("Juju vial")) {
-            Backpack.interact("Juju vial", "Drop");
-            Execution.delay(random.nextLong(500, 800));
-        }
-        //the break condition while woodcutting is if we get our backpack full. notice that this condition works here because handleWoodcutting() doesn't clog up onLoop, so this function will be called up often
-        if (Backpack.isFull()) {
-            Execution.delay(random.nextLong(500,1500));
-            //First try filling the wood box
-            if (Backpack.contains("Eternal magic wood box")) {
-                Backpack.interact("Eternal magic wood box", "Fill");
-                Execution.delay(random.nextLong(1500,3000));
-            }
-            //if inventory is still full after filling the wood box, go to bank
-            if (Backpack.isFull()) {
-                if (botState != BotState.STOPPED) botState = BotState.MOVINGTOBANK;
-                return random.nextLong(1500, 3000);
-            }
         }
         //check grounditems for a bird's nest
         GroundItem birdsNest = GroundItemQuery.newQuery().name(birdsNestPattern).results().nearest();
@@ -374,8 +382,8 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
             Execution.delay(random.nextLong(1000, 3000));
         }
         //it looks like .depositAllExcept(String... names) is currently broken, so I have to use .depositAllExcept(Int... ids)
-        //Execution.delayUntil(random.nextLong(1500, 3000), () -> Bank.depositAllExcept("Eternal magic wood box", "Decorated woodcutting urn (r)", "Decorated woodcutting urn", "Decorated woodcutting urn (full)", "Juju woodcutting flask (6)", "Juju woodcutting flask (5)", "Juju woodcutting flask (4)", "Juju woodcutting flask (3)", "Juju woodcutting flask (2)", "Juju woodcutting flask (1)", "Juju woodcutting potion (4)", "Juju woodcutting potion (3)", "Juju woodcutting potion (2)", "Juju woodcutting potion (1)", "Perfect juju woodcutting flask (6)", "Perfect juju woodcutting flask (5)", "Perfect juju woodcutting flask (4)", "Perfect juju woodcutting flask (3)", "Perfect juju woodcutting flask (2)", "Perfect juju woodcutting flask (1)", "Perfect juju woodcutting potion (4)", "Perfect juju woodcutting potion (3)", "Perfect juju woodcutting potion (2)", "Perfect juju woodcutting potion (1)"));
-        Execution.delayUntil(random.nextLong(1500, 3000), () -> Bank.depositAllExcept(58253, 39012, 39014, 39015, 23149, 23150, 23151, 23152, 23153, 23154, 20015, 20016, 20017, 20018, 32859, 32857, 32855, 32853, 32851, 32849, 32759, 32757, 32755, 32753));
+        //Execution.delayUntil(random.nextLong(1500, 3000), () -> Bank.depositAllExcept("Mechanised siphon", "Eternal magic wood box", "Decorated woodcutting urn (r)", "Decorated woodcutting urn", "Decorated woodcutting urn (full)", "Juju woodcutting flask (6)", "Juju woodcutting flask (5)", "Juju woodcutting flask (4)", "Juju woodcutting flask (3)", "Juju woodcutting flask (2)", "Juju woodcutting flask (1)", "Juju woodcutting potion (4)", "Juju woodcutting potion (3)", "Juju woodcutting potion (2)", "Juju woodcutting potion (1)", "Perfect juju woodcutting flask (6)", "Perfect juju woodcutting flask (5)", "Perfect juju woodcutting flask (4)", "Perfect juju woodcutting flask (3)", "Perfect juju woodcutting flask (2)", "Perfect juju woodcutting flask (1)", "Perfect juju woodcutting potion (4)", "Perfect juju woodcutting potion (3)", "Perfect juju woodcutting potion (2)", "Perfect juju woodcutting potion (1)"));
+        Execution.delayUntil(random.nextLong(1500, 3000), () -> Bank.depositAllExcept(41092, 58253, 39012, 39014, 39015, 23149, 23150, 23151, 23152, 23153, 23154, 20015, 20016, 20017, 20018, 32859, 32857, 32855, 32853, 32851, 32849, 32759, 32757, 32755, 32753));
         //Execution.delay(random.nextLong(1000,2000));
         if(
                 hasNormalJujuPotion
@@ -420,9 +428,8 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
 
     //the big String containing all text in the stats
     public String logString() {
-        int xpGained = Skills.WOODCUTTING.getSkill().getExperience() - startingExperience;
         String bigString = "Time elapsed: " + timeElapsed() + "\n";
-        bigString = bigString + "Experience gained: " + xpGained + " (" + calculatePerHour(xpGained) + " / hr)\n";
+        bigString = bigString + "Experience gained: " + experienceGained + " (" + calculatePerHour(experienceGained) + " / hr)\n";
         for(var i = logNames.size() - 1; i >= 0; i--) {
             bigString = bigString + logNames.get(i) + " x " + logAmounts.get(i) + " (" + calculatePerHour(logAmounts.get(i)) + " / hr)\n";
         }

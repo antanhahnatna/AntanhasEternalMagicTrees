@@ -31,7 +31,7 @@ public class AntanhasEternalMagicTreesGraphicsContext extends ScriptGraphicsCont
                         script.setBotState(AntanhasEternalMagicTrees.BotState.SETUP);
                         script.logNames = new LinkedList<>();
                         script.logAmounts = new LinkedList<>();
-                        script.startingExperience = Skills.WOODCUTTING.getSkill().getExperience();
+                        script.experienceGained = 0;
                         script.startingTime = System.currentTimeMillis();
                     }
                     ImGui.EndDisabled();
