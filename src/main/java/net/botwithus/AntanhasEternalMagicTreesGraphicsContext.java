@@ -43,6 +43,9 @@ public class AntanhasEternalMagicTreesGraphicsContext extends ScriptGraphicsCont
                         script.timeScriptWasLastActive = System.currentTimeMillis();
                     }
                     ImGui.EndDisabled();
+                    ImGui.BeginDisabled(script.getBotState() != AntanhasEternalMagicTrees.BotState.STOPPED);
+                    script.setHandInPerfectEternalMagicBranch(ImGui.Checkbox("Hand in perfect eternal magic branches to Heedi?", script.getHandInPerfectEternalMagicBranch()));
+                    ImGui.EndDisabled();
                     ImGui.Separator();
                     ImGui.Text("Instructions:");
                     ImGui.Text("Requires War's Retreat teleport to be unlocked or that you have Ring of Fortune or Luck of the Dwarves equipped.");

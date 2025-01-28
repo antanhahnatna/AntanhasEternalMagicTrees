@@ -14,6 +14,7 @@ import net.botwithus.rs3.game.inventories.Equipment;
 import net.botwithus.rs3.game.minimenu.actions.GroundItemAction;
 import net.botwithus.rs3.game.movement.Movement;
 import net.botwithus.rs3.game.movement.NavPath;
+import net.botwithus.rs3.game.movement.TraverseEvent;
 import net.botwithus.rs3.game.queries.builders.animations.SpotAnimationQuery;
 import net.botwithus.rs3.game.queries.builders.characters.NpcQuery;
 import net.botwithus.rs3.game.queries.builders.components.ComponentQuery;
@@ -21,6 +22,7 @@ import net.botwithus.rs3.game.queries.builders.items.GroundItemQuery;
 import net.botwithus.rs3.game.queries.builders.items.InventoryItemQuery;
 import net.botwithus.rs3.game.queries.builders.objects.SceneObjectQuery;
 import net.botwithus.rs3.game.scene.entities.animation.SpotAnimation;
+import net.botwithus.rs3.game.scene.entities.characters.npc.Npc;
 import net.botwithus.rs3.game.scene.entities.characters.player.LocalPlayer;
 import net.botwithus.rs3.game.scene.entities.item.GroundItem;
 import net.botwithus.rs3.game.scene.entities.object.SceneObject;
@@ -46,6 +48,7 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
     private Boolean hasNormalJujuPotion = false;
     private Boolean hasPerfectJujuPotion = false;
     private Pattern birdsNestPattern = Pattern.compile("ird's");
+    Boolean handInPerfectEternalMagicBranch = false;
     LinkedList<String> logNames = new LinkedList<>();
     LinkedList<Integer> logAmounts = new LinkedList<>();
     int experienceGained = 0;
@@ -238,6 +241,23 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
             Backpack.interact("Juju vial", "Drop");
             Execution.delay(random.nextLong(500, 800));
         }
+        //hand in perfect eternal magic branches to Heedi if the option is checked
+        if(handInPerfectEternalMagicBranch && Backpack.contains("Perfect eternal magic branch")) {
+            Npc heedi = NpcQuery.newQuery().name("Heedi").option("Give branches to").results().first();
+            if(heedi != null) {
+                heedi.interact("Give branches to");
+                Execution.delayUntil(20000, () -> {
+                    return Interfaces.isOpen(847);
+                });
+                Component okButton = ComponentQuery.newQuery(847).componentIndex(22).results().first();
+                if(okButton != null) {
+                    okButton.interact(okButton.getOptions().get(0));
+                    Execution.delayUntil(20000, () -> {
+                        return !Backpack.contains("Perfect eternal magic branch");
+                    });
+                }
+            }
+        }
         //the break condition while woodcutting is if we get our backpack full. notice that this condition works here because handleWoodcutting() doesn't clog up onLoop, so this function will be called up often
         if (Backpack.isFull()) {
             Execution.delay(random.nextLong(500,1500));
@@ -359,8 +379,30 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
         //there used to be a walkTo(Coordinate, boolean) among other versions but they were removed after deprecation so I'm using the only version left, walkTo(int, int, boolean)
         Movement.walkTo(vicinity.getX(), vicinity.getY(), false);
         Execution.delay(random.nextLong(1000,2000));
-        Movement.traverse(NavPath.resolve(new Area.Circular(whichCoordinate, 2).getRandomWalkableCoordinate()));
-        return random.nextLong(1500,3000);
+        //Movement.traverse(NavPath.resolve(new Area.Circular(whichCoordinate, 2).getRandomWalkableCoordinate()));
+        //I decided to add the entire bit which tries to traverse a 2nd time in case of failure in order to avoid occasions like when the bot would enter the fairy ring instead of travelling
+        TraverseEvent.State moveState = Movement.traverse(NavPath.resolve(new Area.Circular(whichCoordinate, 2).getRandomWalkableCoordinate()));
+        switch (moveState) {
+            case FINISHED:
+                println("handleMoving() | Successfully moved to the area.");
+                return random.nextLong(1500,3000);
+
+            case NO_PATH:
+            case FAILED:
+                println("handleMoving() | Path state: " + moveState.toString());
+                println("handleMoving() | No path found or movement failed. Please navigate to the correct area manually.");
+                //botState = BotState.STOPPED;
+                Movement.traverse(NavPath.resolve(new Area.Circular(whichCoordinate, 2).getRandomWalkableCoordinate()));
+                return random.nextLong(1500,3000);
+
+            default:
+                println("handleMoving() | Unexpected state: " + moveState.toString());
+                //botState = BotState.STOPPED;
+                Movement.traverse(NavPath.resolve(new Area.Circular(whichCoordinate, 2).getRandomWalkableCoordinate()));
+                return random.nextLong(1500,3000);
+        }
+        //println("Movement.traverse(): %s", moveState);
+        //return random.nextLong(1500,3000);
     }
 
     private long handleBanking() {
@@ -527,5 +569,14 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
     public void setBotState(BotState botState) {
         this.botState = botState;
     }
+
+    public Boolean getHandInPerfectEternalMagicBranch() {
+        return handInPerfectEternalMagicBranch;
+    }
+
+    public void setHandInPerfectEternalMagicBranch(Boolean handInPerfectEternalMagicBranch) {
+        this.handInPerfectEternalMagicBranch = handInPerfectEternalMagicBranch;
+    }
+
 
 }
