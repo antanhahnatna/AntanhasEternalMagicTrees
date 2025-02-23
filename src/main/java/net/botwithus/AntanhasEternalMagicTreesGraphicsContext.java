@@ -44,6 +44,7 @@ public class AntanhasEternalMagicTreesGraphicsContext extends ScriptGraphicsCont
                     }
                     ImGui.EndDisabled();
                     ImGui.BeginDisabled(script.getBotState() != AntanhasEternalMagicTrees.BotState.STOPPED);
+                    script.setPickUpBirdsNests(ImGui.Checkbox("Pick bird's nests up?", script.getPickUpBirdsNests()));
                     script.setHandInPerfectEternalMagicBranch(ImGui.Checkbox("Hand in perfect eternal magic branches to Heedi?", script.getHandInPerfectEternalMagicBranch()));
                     ImGui.EndDisabled();
                     ImGui.Separator();

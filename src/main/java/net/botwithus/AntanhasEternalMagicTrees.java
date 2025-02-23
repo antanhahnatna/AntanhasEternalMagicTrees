@@ -44,6 +44,7 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
     private Random random = new Random();
 
     private Coordinate eternalMagicTrees = new Coordinate(2330, 3588, 0);
+    private Boolean pickUpBirdsNests = true;
     private Boolean pickedUpBirdsNest = false;
     private Boolean hasNormalJujuPotion = false;
     private Boolean hasPerfectJujuPotion = false;
@@ -328,7 +329,7 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
         }
         //check grounditems for a bird's nest
         GroundItem birdsNest = GroundItemQuery.newQuery().name(birdsNestPattern).results().nearest();
-        if(birdsNest != null) {
+        if(birdsNest != null && pickUpBirdsNests) {
             birdsNest.interact(GroundItemAction.GROUND_ITEM3);
             //we have to rely on pickedUpBirdsNest set by a subscription in order to know when we picked up the bird's nest
             Execution.delayUntil(20000, () -> {
@@ -578,5 +579,12 @@ public class AntanhasEternalMagicTrees extends LoopingScript {
         this.handInPerfectEternalMagicBranch = handInPerfectEternalMagicBranch;
     }
 
+    public Boolean getPickUpBirdsNests() {
+        return pickUpBirdsNests;
+    }
+
+    public void setPickUpBirdsNests(Boolean pickUpBirdsNests) {
+        this.pickUpBirdsNests = pickUpBirdsNests;
+    }
 
 }
